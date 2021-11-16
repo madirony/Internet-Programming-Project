@@ -31,7 +31,8 @@
 *.out
 *.app
 
-./UDPClient/Debug
-./UDPClient/.vs
-./UDPServer/.vs
-./UDPServer/Debug
+# Folder
+UDPClient/Debug
+UDPClient/.vs
+UDPServer/.vs
+UDPServer/Debug
