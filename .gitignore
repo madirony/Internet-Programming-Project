@@ -36,3 +36,11 @@ UDPClient/Debug
 UDPClient/.vs
 UDPServer/.vs
 UDPServer/Debug
+
+# etc
+*.dsp
+*.dsw
+*.sln
+*.vcxproj
+*.filters
+*.user
