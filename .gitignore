@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+./UDPClient/Debug
+./UDPClient/.vs
+./UDPServer/.vs
+./UDPServer/Debug
