@@ -1,3 +1,14 @@
+/*
+§ Civil(11) Team Internet-Programming-Project §
+Team member Info
+-----------------
+- 연정흠
+- 신용훈
+- 김은빈
+
+기능 구현이나 업데이트 사항이 있으면 UDPServer.cpp UDPClient.cpp 파일만 카카오톡으로 보내주시면 됩니다.
+*/
+
 #define _WINSOCK_DEPRECATED_NO_WARNINGS // 최신 VC++ 컴파일 시 경고 방지
 #pragma comment(lib, "ws2_32")
 #include <winsock2.h>
