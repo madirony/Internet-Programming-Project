@@ -15,6 +15,8 @@ Team member Info
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#include <string>
+#include <iostream>
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
@@ -53,7 +55,14 @@ void err_display(char *msg)
 /*SOCKADDR_IN clientaddr[8];
 int per_num = 0;
 #define P_MAX 8;*/
-std::vector<SOCKADDR_IN> v;
+typedef struct USERDATA {
+    std::string nickName;
+
+
+} USERINFO;
+std::vector<SOCKADDR_IN> v; //USER IP & PORT ADDRESS
+std::vector<USERINFO> userInfo;
+int per_num = 0;
 
 DWORD WINAPI ProcessClient(LPVOID arg) {
     SOCKET client_sock = (SOCKET)arg;
@@ -61,10 +70,11 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
     SOCKADDR_IN clientaddr;
     int addrlen;
     char buf[BUFSIZE + 1];
+    USERINFO tmpinfo;
 
     //클라이언트 정보 얻기
     addrlen = sizeof(clientaddr);
-    getpeername(client_sock, (SOCKADDR*)&clientaddr, &addrlen);
+   //getpeername(client_sock, (SOCKADDR*)&clientaddr, &addrlen);
 
     while (1) {
         // 데이터 받기
@@ -76,38 +86,50 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
             continue;
         }
 
-        if (retval == NULL || retval == 0) {
+        if (retval == NULL) {
             break;
         }
 
         for (int i = 0; i < v.size(); i++) {
             if (v[i].sin_addr.s_addr == clientaddr.sin_addr.s_addr && v[i].sin_port == clientaddr.sin_port) {
+                
+                // 받은 데이터 출력
+                buf[retval] = '\0';
+                std::cout << userInfo[i].nickName <<" ";
+                printf("[UDP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr),
+                    ntohs(clientaddr.sin_port), buf);
+                std::string sendStr(buf);
+                std::string sendForAllChat = userInfo[i].nickName + " : " + sendStr;
+                int sendSize = sendForAllChat.size();
+                char *sendbuf = new char[sendSize];
+                strcpy(sendbuf, sendForAllChat.c_str());
+                // 데이터 보내기
+                for (int j = 0; j < v.size(); j++) {
+                    retval = sendto(client_sock, sendbuf, sendSize, 0,
+                        (SOCKADDR*)&v[j], sizeof(v[j]));
+                    if (retval == SOCKET_ERROR) {
+                        err_display("sendto()");
+                        continue;
+                    }
+                }
                 break;
             }
             else if (v[i].sin_port != clientaddr.sin_port && i == v.size() - 1) {
                 v.push_back(clientaddr);
-            }
-        }
-
-        // 받은 데이터 출력
-        buf[retval] = '\0';
-        printf("[UDP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr),
-            ntohs(clientaddr.sin_port), buf);
-
-        // 데이터 보내기
-        for (int j = 0; j < v.size(); j++) {
-            retval = sendto(client_sock, buf, retval, 0,
-                (SOCKADDR*)&v[j], sizeof(v[j]));
-            if (retval == SOCKET_ERROR) {
-                err_display("sendto()");
-                continue;
+                buf[retval] = '\0';
+                tmpinfo.nickName = buf;
+                userInfo.push_back(tmpinfo);
+                std::cout << "접속한 사용자 닉네임 : " << userInfo[per_num].nickName << std::endl;
+                per_num++;
+                break;
             }
         }
     }
     //closesocket()
     closesocket(client_sock);
-    printf("[UDP 서버] 클라이언트 종료 : IP 주소 = %s, 포트 번호=%d\n", inet_ntoa(clientaddr.sin_addr),
-        ntohs(clientaddr.sin_port));
+    printf("-서버 종료-\n");
+    /*printf("[UDP 서버] 클라이언트 종료 : IP 주소 = %s, 포트 번호=%d\n", inet_ntoa(clientaddr.sin_addr),
+        ntohs(clientaddr.sin_port));*/
 
     return 0;
 }
@@ -141,6 +163,7 @@ int main(int argc, char *argv[])
     char buf[BUFSIZE + 1];
 
     HANDLE ThreadHandle = NULL;
+    USERINFO tmpinfo;
 
     // 클라이언트와 데이터 통신
     while (1) {
@@ -154,7 +177,13 @@ int main(int argc, char *argv[])
                 continue;
             }
 
+            //
             v.push_back(clientaddr);
+            buf[retval] = '\0';
+            tmpinfo.nickName = buf;
+            userInfo.push_back(tmpinfo);
+            std::cout << "접속한 사용자 닉네임 : " << userInfo[per_num].nickName << std::endl;
+            per_num++;
 
             HANDLE hThread = CreateThread(NULL, 0, ProcessClient, (LPVOID)sock, 0, NULL);
             ThreadHandle = hThread;

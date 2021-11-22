@@ -14,6 +14,7 @@ Team member Info
 #include <winsock2.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <algorithm>
 
 #define SERVERIP   "127.0.0.1"
 #define SERVERPORT 9000
@@ -71,7 +72,7 @@ DWORD WINAPI ClientRecv(LPVOID arg) {
 
         // 받은 데이터 출력
         buf[retval] = '\0';
-        printf("[UDP 클라이언트] %d바이트를 받았습니다.\n", retval);
+        //printf("[UDP 클라이언트] %d바이트를 받았습니다.\n", retval);
         printf("[받은 데이터] %s\n", buf);
     }
     return 0;
@@ -108,14 +109,16 @@ int main(int argc, char *argv[])
     len = strlen(buf);
     if (buf[len - 1] == '\n')
         buf[len - 1] = '\0';
-    retval = sendto(sock, buf, strlen(buf), 0,
+    char *nickbuf = new char[len];
+    std::copy(buf, buf + len, nickbuf);
+    retval = sendto(sock, nickbuf, strlen(nickbuf), 0,
         (SOCKADDR*)&serveraddr, sizeof(serveraddr));
     HANDLE hThread = CreateThread(NULL, 0, ClientRecv, (LPVOID)sock, 0, NULL);
     // 서버와 데이터 통신
     while (1) {
 
         // 데이터 입력
-        printf("\n[보낼 데이터] ");
+        //printf("\n[보낼 데이터] ");
         if (fgets(buf, BUFSIZE + 1, stdin) == NULL)
             break;
 
@@ -133,7 +136,7 @@ int main(int argc, char *argv[])
             err_display("sendto()");
             continue;
         }
-        printf("[UDP 클라이언트] %d바이트를 보냈습니다.\n", retval);
+        //printf("[UDP 클라이언트] %d바이트를 보냈습니다.\n", retval);
 
         
         /*HANDLE hThread1 = CreateThread(NULL, 0, ClientSend, (LPVOID)sock, 0, NULL);
