@@ -15,6 +15,7 @@ Team member Info
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
+#include <string>
 
 #define SERVERIP   "127.0.0.1"
 #define SERVERPORT 9000
@@ -103,15 +104,22 @@ int main(int argc, char *argv[])
     //int addrlen;
     char buf[BUFSIZE + 1];
     int len;
-    printf("로그인 닉네임을 입력하세요.\n");
+    printf("로그인 닉네임을 입력하세요. 공백x\n");
     fgets(buf, BUFSIZE + 1, stdin);
+
+    //닉네임 공백 제거
+    std::string erasedSpaceNick(buf);
+    erasedSpaceNick.erase(remove(erasedSpaceNick.begin(), erasedSpaceNick.end(), ' '), erasedSpaceNick.end());
+    len = erasedSpaceNick.length();
+    char* sendbuf = new char[len];
+    strcpy(sendbuf, erasedSpaceNick.c_str());
     // '\n' 문자 제거
-    len = strlen(buf);
-    if (buf[len - 1] == '\n')
-        buf[len - 1] = '\0';
-    char *nickbuf = new char[len];
-    std::copy(buf, buf + len, nickbuf);
-    retval = sendto(sock, nickbuf, strlen(nickbuf), 0,
+    len = strlen(sendbuf);
+    if (sendbuf[len - 1] == '\n')
+        sendbuf[len - 1] = '\0';
+    //char* nickbuf = new char[len];
+    //std::copy(buf, buf + len, nickbuf);
+    retval = sendto(sock, sendbuf, strlen(sendbuf), 0,
         (SOCKADDR*)&serveraddr, sizeof(serveraddr));
     HANDLE hThread = CreateThread(NULL, 0, ClientRecv, (LPVOID)sock, 0, NULL);
     // 서버와 데이터 통신

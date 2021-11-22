@@ -9,6 +9,7 @@ Team member Info
 기능 구현이나 업데이트 사항이 있으면 UDPServer.cpp UDPClient.cpp 파일만 카카오톡으로 보내주시면 됩니다.
 */
 
+#define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS // 최신 VC++ 컴파일 시 경고 방지
 #pragma comment(lib, "ws2_32")
 #include <winsock2.h>
@@ -55,14 +56,19 @@ void err_display(char *msg)
 /*SOCKADDR_IN clientaddr[8];
 int per_num = 0;
 #define P_MAX 8;*/
+
+//유저
 typedef struct USERDATA {
     std::string nickName;
-
-
+    std::vector<std::string> friendsList;
 } USERINFO;
+
 std::vector<SOCKADDR_IN> v; //USER IP & PORT ADDRESS
 std::vector<USERINFO> userInfo;
 int per_num = 0;
+
+//채팅
+std::string command[] = { "/whisper", "/f"};
 
 DWORD WINAPI ProcessClient(LPVOID arg) {
     SOCKET client_sock = (SOCKET)arg;
@@ -92,29 +98,127 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
 
         for (int i = 0; i < v.size(); i++) {
             if (v[i].sin_addr.s_addr == clientaddr.sin_addr.s_addr && v[i].sin_port == clientaddr.sin_port) {
-                
+                //등록된 사용자의 채팅 전송
                 // 받은 데이터 출력
                 buf[retval] = '\0';
                 std::cout << userInfo[i].nickName <<" ";
                 printf("[UDP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr),
                     ntohs(clientaddr.sin_port), buf);
                 std::string sendStr(buf);
-                std::string sendForAllChat = userInfo[i].nickName + " : " + sendStr;
-                int sendSize = sendForAllChat.size();
-                char *sendbuf = new char[sendSize];
-                strcpy(sendbuf, sendForAllChat.c_str());
-                // 데이터 보내기
-                for (int j = 0; j < v.size(); j++) {
-                    retval = sendto(client_sock, sendbuf, sendSize, 0,
-                        (SOCKADDR*)&v[j], sizeof(v[j]));
-                    if (retval == SOCKET_ERROR) {
-                        err_display("sendto()");
-                        continue;
+                
+                //명령어 확인
+                char* tmpCommand = strtok(buf, " ");
+                //공백으로 split된 문자열이 /
+                if (tmpCommand[0] == '/') {
+                    std::cout << tmpCommand << std::endl;
+                    //귓속말
+                    std::string forIFCommand(tmpCommand);
+                    if (forIFCommand == command[0]) {
+                        tmpCommand = strtok(NULL, " ");
+                        for (int j = 0; j < userInfo.size(); j++) {
+                            if (tmpCommand == userInfo[j].nickName) {
+                                int whisUserLen = userInfo[j].nickName.length();
+                                sendStr.erase(0, 10 + whisUserLen);
+                                std::string sendForWhisperChat = userInfo[i].nickName + "님의 귓속말 : " + sendStr;
+                                int sendSize = sendForWhisperChat.size();
+                                char* sendbuf = new char[sendSize];
+                                strcpy(sendbuf, sendForWhisperChat.c_str());
+                                retval = sendto(client_sock, sendbuf, sendSize, 0,
+                                    (SOCKADDR*)&v[j], sizeof(v[j]));
+                                if (retval == SOCKET_ERROR) {
+                                    err_display("sendto()");
+                                    continue;
+                                }
+                                break;
+                            }
+                            else if(j==userInfo.size()-1 && tmpCommand != userInfo[j].nickName){
+                                std::cout << "그런 닉네임의 사용자는 없습니다." << std::endl;
+                            }
+                        }
+
                     }
+                    else if (forIFCommand == command[1]) {
+                        std::cout << "들어옴"<< userInfo.size() << " " << std::endl;
+                        tmpCommand = strtok(NULL, " ");
+                        std::string serverMsg_friend_add;
+                        for (int j = 0; j < userInfo.size(); j++) {
+                            std::cout << "인자유저검색 " << tmpCommand << std::endl;
+                            if (tmpCommand == userInfo[j].nickName) {
+                                std::cout << "닉이 있는지 검사" << userInfo[i].friendsList.size() << std::endl;
+                                if (userInfo[i].friendsList.size() == 0) {
+                                    userInfo[i].friendsList.push_back(userInfo[j].nickName);
+                                    serverMsg_friend_add = userInfo[j].nickName + "님을 친구 추가 '_< \n";
+                                }
+                                else {
+                                    for (int k = 0; k < userInfo[i].friendsList.size(); k++) {
+                                        std::cout << "있으면 반복문 들어옴" << std::endl;
+                                        if (userInfo[i].friendsList[k] == userInfo[j].nickName) {
+                                            serverMsg_friend_add = userInfo[j].nickName + "님과 이미 친구입니다.\n";
+                                            std::cout << "중복" << std::endl;
+                                            break;
+                                        }
+                                        else if ((k == userInfo[i].friendsList.size() - 1 && userInfo[i].friendsList[k] != userInfo[j].nickName)) {
+                                            userInfo[i].friendsList.push_back(userInfo[j].nickName);
+                                            serverMsg_friend_add = userInfo[j].nickName + "님을 친구 추가 '_< \n";
+                                            std::cout << "추가" << std::endl;
+                                            break;
+                                        }
+                                        else {
+                                            std::cout << "시스템 메시지 오류?" << std::endl;
+                                            break;
+                                        }
+                                    }
+                                }
+                                int sendSize = serverMsg_friend_add.size();
+                                char* sendbuf = new char[sendSize];
+                                strcpy(sendbuf, serverMsg_friend_add.c_str());
+                                retval = sendto(client_sock, sendbuf, sendSize, 0,
+                                    (SOCKADDR*)&v[i], sizeof(v[i]));
+                                if (retval == SOCKET_ERROR) {
+                                    err_display("sendto()");
+                                    continue;
+                                }
+
+                                break;
+                            }
+                            else if (j == userInfo.size() - 1 && tmpCommand != userInfo[j].nickName) {
+                                std::cout << "그런 닉네임의 사용자는 없습니다." << std::endl;
+                            }
+                            else {
+                                std::cout << "오류?" << std::endl;
+                            }
+                        }
+
+                    }
+                    else {
+                        //잘못된 커멘드
+                    std::cout << "그런 커멘드는 없습니다." << std::endl;
+                    }
+                    break;
                 }
-                break;
+                else {
+                    //전체 채팅
+                    //메시지 전송 작업
+                    std::string sendForAllChat = userInfo[i].nickName + " : " + sendStr;
+                    int sendSize = sendForAllChat.size();
+                    char* sendbuf = new char[sendSize];
+                    strcpy(sendbuf, sendForAllChat.c_str());
+                    // 데이터 보내기
+                    for (int j = 0; j < v.size(); j++) {
+                        retval = sendto(client_sock, sendbuf, sendSize, 0,
+                            (SOCKADDR*)&v[j], sizeof(v[j]));
+                        if (retval == SOCKET_ERROR) {
+                            err_display("sendto()");
+                            continue;
+                        }
+                    }
+                    break;
+                }
+
+  
             }
             else if (v[i].sin_port != clientaddr.sin_port && i == v.size() - 1) {
+                //신규 유저 첫 접속시 닉네임 등록
                 v.push_back(clientaddr);
                 buf[retval] = '\0';
                 tmpinfo.nickName = buf;
