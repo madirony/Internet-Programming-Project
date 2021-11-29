@@ -17,6 +17,7 @@ Team member Info
 #include <algorithm>
 #include <string>
 
+//#define SERVERIP "59.31.105.35"
 #define SERVERIP   "127.0.0.1"
 #define SERVERPORT 9000
 #define BUFSIZE    512
@@ -67,7 +68,7 @@ DWORD WINAPI ClientRecv(LPVOID arg) {
             continue;
         }
         
-        if (retval == NULL || retval == 0) {
+        if (retval == NULL) {
             break;
         }
 
