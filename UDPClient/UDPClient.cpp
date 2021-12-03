@@ -8,7 +8,7 @@ Team member Info
 
 기능 구현이나 업데이트 사항이 있으면 UDPServer.cpp UDPClient.cpp 파일만 카카오톡으로 보내주시면 됩니다.
 */
-
+#define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS // 최신 VC++ 컴파일 시 경고 방지
 #pragma comment(lib, "ws2_32")
 #include <winsock2.h>
@@ -16,6 +16,7 @@ Team member Info
 #include <stdio.h>
 #include <algorithm>
 #include <string>
+#include <iostream>
 
 //#define SERVERIP "59.31.105.35"
 #define SERVERIP   "127.0.0.1"
@@ -50,6 +51,9 @@ void err_display(char *msg)
     LocalFree(lpMsgBuf);
 }
 
+//이모티콘
+std::string emoji[] = { "smile", "happy", "sad", "angry" };
+
 DWORD WINAPI ClientRecv(LPVOID arg) {
     // 데이터 받기
     SOCKET tmp_sock = (SOCKET) arg;
@@ -73,9 +77,35 @@ DWORD WINAPI ClientRecv(LPVOID arg) {
         }
 
         // 받은 데이터 출력
+
         buf[retval] = '\0';
-        //printf("[UDP 클라이언트] %d바이트를 받았습니다.\n", retval);
-        printf("[받은 데이터] %s\n", buf);
+        printf("%s\n", buf);
+        //char* tmpbuf = new char[retval];
+        //std::copy(tmpbuf, tmpbuf + retval, buf);
+        //printf("[받은 데이터2] %s\n", buf);
+        //std::string recvStr(tmpbuf);
+        //이모티콘 여부
+        char* tmpCommand = strtok(buf, " ");
+        //printf("[받은 데이터2] %s\n", tmpCommand);
+        //std::cout << tmpCommand << "1" << std::endl;
+        tmpCommand = strtok(NULL, " ");
+        //std::cout << tmpCommand << "2" << std::endl;
+        tmpCommand = strtok(NULL, " ");
+        //std::cout << tmpCommand << "3" << std::endl;
+        std::string forEMJCommand(tmpCommand);
+        if (forEMJCommand == "/emoji") {
+            //이모지 ID
+            tmpCommand = strtok(NULL, " ");
+            for (int x = 0; x < sizeof(emoji) / sizeof(std::string); x++) {
+                if (emoji[x] == tmpCommand) {
+                    std::cout << emoji[x] << " 이모지" << std::endl;
+                    break;
+                }
+            }
+        }
+        else {
+            //printf("else buf\n");
+        }
     }
     return 0;
 }
