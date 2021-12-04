@@ -158,17 +158,15 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                                     if (sendStr[0] != '[') {
                                         sendStr.erase(0, 10 + whisUserLen);
                                     }
-                                    std::cout << "加静妨1" << std::endl;
                                 }
                                 else if(commandLen ==2){
                                     std::cout << sendStr << std::endl;
                                     if (sendStr[0] != '[') {
                                         sendStr.erase(0, 4 + whisUserLen);
                                     }
-                                    std::cout << "加静妨2" << std::endl;
                                 }
                                 else {
-                                    std::cout << "加静妨3" << std::endl;
+                                    std::cout << "whisper err3" << std::endl;
                                 }
                                 std::cout << sendStr << std::endl;
                                 std::string sendForWhisperChat = userInfo[i].nickName + "丛狼 庇加富 : " + sendStr;
@@ -362,6 +360,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                             continue;
                         }*/
                     }
+                    //庇加富 格废
                     else if (forIFCommand == command[8]) {
                         std::string serverMsg_my_whispers_list = userInfo[i].nickName + " 丛狼 庇加富 格废\n";
                         for (int j = 0; j < userInfo[i].whisperList.size(); j++) {
