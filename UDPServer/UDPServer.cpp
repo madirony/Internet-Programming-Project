@@ -154,11 +154,23 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                             if (tmpCommand == userInfo[j].nickName) {
                                 int whisUserLen = userInfo[j].nickName.length();
                                 if (commandLen == 8) {
-                                    sendStr.erase(0, 10 + whisUserLen);
+                                    std::cout << sendStr << std::endl;
+                                    if (sendStr[0] != '[') {
+                                        sendStr.erase(0, 10 + whisUserLen);
+                                    }
+                                    std::cout << "속쓰려1" << std::endl;
+                                }
+                                else if(commandLen ==2){
+                                    std::cout << sendStr << std::endl;
+                                    if (sendStr[0] != '[') {
+                                        sendStr.erase(0, 4 + whisUserLen);
+                                    }
+                                    std::cout << "속쓰려2" << std::endl;
                                 }
                                 else {
-                                    sendStr.erase(0, 4 + whisUserLen);
+                                    std::cout << "속쓰려3" << std::endl;
                                 }
+                                std::cout << sendStr << std::endl;
                                 std::string sendForWhisperChat = userInfo[i].nickName + "님의 귓속말 : " + sendStr;
                                 userInfo[j].whisperList.push_back(sendForWhisperChat);
                                 int sendSize = sendForWhisperChat.size();
