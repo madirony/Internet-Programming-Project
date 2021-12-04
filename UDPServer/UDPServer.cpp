@@ -23,7 +23,7 @@ Team member Info
 #include <algorithm>
 
 #define SERVERPORT 9000
-#define BUFSIZE    512
+#define BUFSIZE    1024
 
 // 소켓 함수 오류 출력 후 종료
 void err_quit(char* msg)
@@ -66,6 +66,7 @@ typedef struct USERDATA {
     std::vector<std::string> friendsList;
     std::vector<std::string> whisperList;
     int online = 0;
+    int firstConnect = 0;
 
 } USERINFO;
 
@@ -90,7 +91,7 @@ SOCKET client_sock;
 //필터링
 std::string filtering(std::string s) { 
     std::string bad_word[] = {"fuck", "씨발", "병신", "ㅅㅂ", "ㅄ", "ㅂㅅ", "바보", "븅신", "ㅗ", "장애", "새끼", "등신", "존나", "애미", "느금", "지랄", "ㅈㄹ", "ㅅㄲ", "멍청이"};
-    std::string filter;
+
     for (auto bad : bad_word) {
         if (s.find(bad) < s.size()) {
             s = "[욕설로 인해 블라인드된 채팅입니다.]";
@@ -138,7 +139,19 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                 //나쁜 단어 필터링
                 sendStr = filtering(sendStr);
 
+                // 로그인 후 첫 접속일 경우 공지 출력 (cmd에서는 정상 작동 됐지만 gui용 공지부분임)
+                if (userInfo[i].firstConnect == 0) {
 
+                    std::string serverMsg_welcome;
+                    serverMsg_welcome = "☆☆Kate-On에 오신 것을 환영합니다.☆☆ \r\n도움말은 /help 커멘드 입력으로 찾아 볼 수 있습니다.\r\n[규칙1] : 바른 말 고운 말을 사용합시다. \r\n[규칙2] : 중복된 닉네임 사용은 자제해주시고, \r\n         닉네임이 중복된다면 /nc 커멘드로\r\n         닉네임 변경을 해주시길 바랍니다.\r\n";
+                    int tempsendSize = serverMsg_welcome.size();
+                    char* tempsendbuf = new char[tempsendSize];
+                    strcpy(tempsendbuf, serverMsg_welcome.c_str());
+                    retval = sendto(client_sock, tempsendbuf, tempsendSize, 0,
+                        (SOCKADDR*)&v[i], sizeof(v[i]));
+                    userInfo[i].firstConnect = 1;
+
+                }
 
                 //명령어 확인
                 char* tmpCommand = strtok(buf, " ");
@@ -176,6 +189,8 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                                 strcpy(sendbuf, sendForWhisperChat.c_str());
                                 retval = sendto(client_sock, sendbuf, sendSize, 0,
                                     (SOCKADDR*)&v[j], sizeof(v[j]));
+                                retval = sendto(client_sock, sendbuf, sendSize, 0,
+                                    (SOCKADDR*)&v[i], sizeof(v[i]));
                                 if (retval == SOCKET_ERROR) {
                                     err_display("sendto()");
                                     continue;
@@ -185,7 +200,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                             else if (j == userInfo.size() - 1 && tmpCommand != userInfo[j].nickName) {
                                 std::cout << "그런 닉네임의 사용자는 없습니다." << std::endl;
                                 std::string serverMsg_whisper_err;
-                                serverMsg_whisper_err = "그런 닉네임의 사용자는 없습니다.\n";
+                                serverMsg_whisper_err = "그런 닉네임의 사용자는 없습니다.\r\n";
                                 int sendSize = serverMsg_whisper_err.size();
                                 char* sendbuf = new char[sendSize];
                                 strcpy(sendbuf, serverMsg_whisper_err.c_str());
@@ -210,19 +225,19 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                                 //std::cout << "닉이 있는지 검사" << userInfo[i].friendsList.size() << std::endl;
                                 if (userInfo[i].friendsList.size() == 0) {
                                     userInfo[i].friendsList.push_back(userInfo[j].nickName);
-                                    serverMsg_friend_add = userInfo[j].nickName + "님을 친구 추가 '_< \n";
+                                    serverMsg_friend_add = userInfo[j].nickName + "님을 친구 추가 '_< \r\n";
                                 }
                                 else {
                                     for (int k = 0; k < userInfo[i].friendsList.size(); k++) {
                                         //std::cout << "있으면 반복문 들어옴" << std::endl;
                                         if (userInfo[i].friendsList[k] == userInfo[j].nickName) {
-                                            serverMsg_friend_add = userInfo[j].nickName + "님과 이미 친구입니다.\n";
+                                            serverMsg_friend_add = userInfo[j].nickName + "님과 이미 친구입니다.\r\n";
                                             //std::cout << "중복" << std::endl;
                                             break;
                                         }
                                         else if ((k == userInfo[i].friendsList.size() - 1 && userInfo[i].friendsList[k] != userInfo[j].nickName)) {
                                             userInfo[i].friendsList.push_back(userInfo[j].nickName);
-                                            serverMsg_friend_add = userInfo[j].nickName + "님을 친구 추가 '_< \n";
+                                            serverMsg_friend_add = userInfo[j].nickName + "님을 친구 추가 '_< \r\n";
                                             //std::cout << "추가" << std::endl;
                                             break;
                                         }
@@ -247,7 +262,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                             else if (j == userInfo.size() - 1 && tmpCommand != userInfo[j].nickName) {
                                 std::cout << "그런 닉네임의 사용자는 없습니다." << std::endl;
                                 std::string serverMsg_friend_err;
-                                serverMsg_friend_err = "그런 닉네임의 사용자는 없습니다.\n";
+                                serverMsg_friend_err = "그런 닉네임의 사용자는 없습니다.\r\n";
                                 int sendSize = serverMsg_friend_err.size();
                                 char* sendbuf = new char[sendSize];
                                 strcpy(sendbuf, serverMsg_friend_err.c_str());
@@ -266,7 +281,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                     }
                     //친구 목록 보기
                     else if (forIFCommand == command[4]) {
-                        std::string serverMsg_my_friends_list = userInfo[i].nickName + " 님의 친구 목록\n";
+                        std::string serverMsg_my_friends_list = userInfo[i].nickName + " 님의 친구 목록\r\n";
                         for (int j = 0; j < userInfo[i].friendsList.size(); j++) {
                             std::string onlineCheck = "오프라인";
                             for (int k = 0; k < userInfo.size(); k++) {
@@ -274,7 +289,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                                     onlineCheck = "온라인";
                                 }
                             }
-                            serverMsg_my_friends_list += userInfo[i].friendsList[j] +" - " + onlineCheck + "\n";
+                            serverMsg_my_friends_list += userInfo[i].friendsList[j] +" - " + onlineCheck + "\r\n";
                         }
                         int sendSize = serverMsg_my_friends_list.size();
                         char* sendbuf = new char[sendSize];
@@ -316,7 +331,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                                 //없는 이모지
                                 std::cout << "그런 이모지는 없습니다." << std::endl;
                                 std::string serverMsg_emoji_err;
-                                serverMsg_emoji_err = "그런 이모지는 없습니다.\n";
+                                serverMsg_emoji_err = "그런 이모지는 없습니다.\r\n";
                                 int sendSize = serverMsg_emoji_err.size();
                                 char* sendbuf = new char[sendSize];
                                 strcpy(sendbuf, serverMsg_emoji_err.c_str());
@@ -332,7 +347,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                     //도움말
                     else if (forIFCommand == command[6]) {
                         std::string serverMsg_help;
-                        serverMsg_help = "☆☆☆Kate-On 도움말☆☆☆\n[귓속말 보내기] :: /whisper 혹은 /w \n[사용법] :: /whisper 닉네임 귓속말내용    혹은    /w 닉네임 귓속말내용\n[친구 추가] :: /friend_add 혹은 /f \n[사용법] :: /friend_add 닉네임    혹은    /f 닉네임\n[친구 리스트 보기] :: /friends_list\n[이모티콘] :: /emoji 이모티콘명\n[닉네임 변경] :: /nc 바꿀닉네임(공백x)";
+                        serverMsg_help = "☆☆☆Kate-On 도움말☆☆☆\r\n[귓속말 보내기] :: /whisper 혹은 /w \r\n[사용법] :: /whisper 닉네임 귓속말내용 혹은 /w 닉네임 귓속말내용\r\n[귓속말목록] :: /whispers_list\r\n[친구 추가] :: /friend_add 혹은 /f \r\n[사용법] :: /friend_add 닉네임  혹은  /f 닉네임\r\n[친구 리스트 보기] :: /friends_list\r\n[이모티콘] :: /emoji 이모티콘명\r\n이모티콘 종류 :: smile, happy, sad, angry \r\n[닉네임 변경] :: /nc 바꿀닉네임(공백x)\r\n";
                         int sendSize = serverMsg_help.size();
                         char* sendbuf = new char[sendSize];
                         strcpy(sendbuf, serverMsg_help.c_str());
@@ -362,9 +377,9 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                     }
                     //귓속말 목록
                     else if (forIFCommand == command[8]) {
-                        std::string serverMsg_my_whispers_list = userInfo[i].nickName + " 님의 귓속말 목록\n";
+                        std::string serverMsg_my_whispers_list = userInfo[i].nickName + " 님의 귓속말 목록\r\n";
                         for (int j = 0; j < userInfo[i].whisperList.size(); j++) {
-                            serverMsg_my_whispers_list += userInfo[i].whisperList[j] + "\n";
+                            serverMsg_my_whispers_list += userInfo[i].whisperList[j] + "\r\n";
                         }
                         int sendSize = serverMsg_my_whispers_list.size();
                         char* sendbuf = new char[sendSize];
@@ -380,7 +395,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                         //잘못된 커멘드
                         std::cout << "그런 커멘드는 없습니다." << std::endl;
                         std::string serverMsg_command_err;
-                        serverMsg_command_err = "그런 커멘드는 없습니다.\n";
+                        serverMsg_command_err = "그런 커멘드는 없습니다.\r\n";
                         int sendSize = serverMsg_command_err.size();
                         char* sendbuf = new char[sendSize];
                         strcpy(sendbuf, serverMsg_command_err.c_str());
@@ -398,17 +413,18 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                     if (first_user == false && i == 0) {
                         //신규 유저에게 규칙/공지사항 전송
                          //메시지 전송 작업
-                        std::string serverMsg_welcome;
-                        serverMsg_welcome = "☆☆Kate-On에 오신 것을 환영합니다.☆☆ \n도움말은 /help 커멘드 입력으로 찾아 볼 수 있습니다.\n[규칙1] : 바른 말 고운 말을 사용합시다. \n[규칙2] : 메시지 내용을 입력하고 엔터를 누릅시다.\n";
+                        /*std::string serverMsg_welcome;
+                        serverMsg_welcome = "☆☆Kate-On에 오신 것을 환영합니다.☆☆ \r\n도움말은 /help 커멘드 입력으로 찾아 볼 수 있습니다.\r\n[규칙1] : 바른 말 고운 말을 사용합시다. \r\n[규칙2] : 중복된 닉네임 사용은 자제해주시고, \r\n         닉네임이 중복된다면 /nc 커멘드로\r\n         닉네임 변경을 해주시길 바랍니다.\r\n";
                         int sendSize = serverMsg_welcome.size();
                         char* sendbuf = new char[sendSize];
                         strcpy(sendbuf, serverMsg_welcome.c_str());
                         retval = sendto(client_sock, sendbuf, sendSize, 0,
-                            (SOCKADDR*)&v[i], sizeof(v[i]));
-                        if (retval == SOCKET_ERROR) {
+                            (SOCKADDR*)&v[i], sizeof(v[i]));*/
+                        userInfo[i].firstConnect = 1;
+                        /*if (retval == SOCKET_ERROR) {
                             err_display("sendto()");
                             continue;
-                        }
+                        }*/
                         first_user = true;
                     }
 
@@ -462,7 +478,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                 tmpinfo.online = 1;
                 userInfo.push_back(tmpinfo);
                 std::cout << "접속한 사용자 닉네임 : " << userInfo[per_num].nickName << std::endl;
-
+                tmpinfo.firstConnect;
 
                 //닉네임 중복 검사
                 /*if (ifNickOverlap == 1) {
@@ -476,8 +492,8 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
 
                 //신규 유저에게 규칙/공지사항 전송
                 //메시지 전송 작업
-                std::string serverMsg_welcome;
-                serverMsg_welcome = "☆☆Kate-On에 오신 것을 환영합니다.☆☆ \n도움말은 /help 커멘드 입력으로 찾아 볼 수 있습니다.\n[규칙1] : 바른 말 고운 말을 사용합시다. \n[규칙2] : 메시지 내용을 입력하고 엔터를 누릅시다.\n";
+                /*std::string serverMsg_welcome;
+                serverMsg_welcome = "☆☆Kate-On에 오신 것을 환영합니다.☆☆ \r\n도움말은 /help 커멘드 입력으로 찾아 볼 수 있습니다.\r\n[규칙1] : 바른 말 고운 말을 사용합시다. \r\n[규칙2] : 중복된 닉네임 사용은 자제해주시고, \r\n         닉네임이 중복된다면 /nc 커멘드로\r\n         닉네임 변경을 해주시길 바랍니다.\r\n";
                 int sendSize = serverMsg_welcome.size();
                 char* sendbuf = new char[sendSize];
                 strcpy(sendbuf, serverMsg_welcome.c_str());
@@ -487,7 +503,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                 if (retval == SOCKET_ERROR) {
                     err_display("sendto()");
                     continue;
-                }
+                }*/
 
                 per_num++;
                 break;
