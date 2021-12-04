@@ -1,25 +1,25 @@
 § Civil(11) Team Internet-Programming-Project §
 ================================================
-Team Member Info
+★ Team Member Info ★
 -----------------
 - 연정흠
 - 신용훈
 - 김은빈
 
-Team Project Objective
+★ Team Project Objective ★
 -----------------
 - UDP 서버-클라이언트 기반 다중 채팅 메신저 프로그램 구현
- - 닉네임 설정
- - 귓속말
- - 이모티콘
-  - 이모지 정보로 클라이언트에서 이모지 출력
- - 친구 추가
- - GUI 구현 (NATEON 구버전 UI 오마주)
- - 부가적인 서버 기능
-  - 클라이언트 강제 퇴장
-  - 불건전 채팅 필터링
+  - 닉네임 설정
+  - 귓속말
+  - 이모티콘
+   - 이모지 정보로 클라이언트에서 이모지 출력
+  - 친구 추가
+  - GUI 구현 (NATEON 구버전 UI 오마주)
+  - 부가적인 서버 기능
+   - 클라이언트 강제 퇴장
+   - 불건전 채팅 필터링
 
-Project Progress
+★ Project Progress ★
 ------------------
 ![Alt "주차 별 계획과 진행 상황"](/img/plan.jpg)
 - 닉네임 변경 기능 추가
@@ -32,7 +32,7 @@ Project Progress
 - 귓속말 목록
  - 받은 귓속말을 저장하여 쪽지 기능을 대신 하도록 구현
 
-Algorithm & Function
+★ Algorithm & Function ★
 ------------------
 - 멀티스레드로 데이터 송신과 수신을 동시에 가능하도록 구현
 - 닉네임 공백 제거
@@ -61,14 +61,14 @@ Algorithm & Function
  - 로그인 소리 재생 추가
 - etc...
 
-Gui Example
+★ Gui Example ★
 -------------
 - 로그인 화면
 ![Alt "로그인"](/img/login.jpg)
 - 클라이언트 ui
 ![Alt "client ui"](/img/clientui.jpg)
 
-Reference
+★ Reference ★
 -------------
 > :: 참고 문헌과 참고 사이트 ::
 > 김선우, 『TCP/IC 윈도우 소켓 프로그래밍』, 한빛아카데미, 2013
