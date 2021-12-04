@@ -78,3 +78,4 @@
 > DelftStack, 『Replace a Part of the String in C++』, DelftStack, https://www.delftstack.com/howto/cpp/string-replace-cpp/, November-02, 2020  
 > 코딩팩토리, 『[C언어/C++] 특정 문자열 찾기/검색 &치환 strstr 함수 사용법 & 예제』, 코딩팩토리, https://coding-factory.tistory.com/677?category=767224, 2021. 2. 13.  
 > mwultong, 『문자열 치환 함수, 문자열 모두 바꾸기 - String Replace All』, mwultong Blog, http://mwultong.blogspot.com/2006/10/c-string-replace-all.html, October 03, 2006  
+> Anow,『(WinAPI) editbox에 줄바꿈 삽입이 안될 때』, Anow's Opportunities, https://anow.tistory.com/176, 2013. 10. 16  
