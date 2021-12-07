@@ -77,19 +77,19 @@
 
 ★ Test Gif ★
 -------------
-- 유저 로그인
+- 유저 로그인  
 ![Alt "유저로그인"](/img/user_login.gif)
-- 이모티콘 사용
+- 이모티콘 사용  
 ![Alt "이모티콘"](/img/user_emoji.gif)
-- 귓속말
+- 귓속말  
 ![Alt "귓속말"](/img/whisFrie.gif)
-- 귓속말 리스트
+- 귓속말 리스트  
 ![Alt "귓속말"](/img/whisList.gif)
-- 닉네임 변경
+- 닉네임 변경  
 ![Alt "닉변"](/img/nickChange.gif)
-- 서버 채팅
+- 서버 채팅  
 ![Alt "운영자 채팅"](/img/serverChat.gif)
-- 불건전 채팅 필터링
+- 불건전 채팅 필터링  
 ![Alt "운영자 채팅"](/img/badChatBlind.gif)
 
 ★ Reference ★
