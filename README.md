@@ -81,7 +81,7 @@
 ![Alt "유저로그인"](/img/user_login.gif)
 - 이모티콘 사용  
 ![Alt "이모티콘"](/img/user_emoji.gif)
-- 귓속말  
+- 귓속말 & 친구리스트  
 ![Alt "귓속말"](/img/whisFrie.gif)
 - 귓속말 리스트  
 ![Alt "귓속말"](/img/whisList.gif)
