@@ -80,7 +80,7 @@ int per_num = 0;
 bool first_user = false;
 
 //채팅
-std::string command[] = { "/whisper", "/w", "/friend_add","/f","/friends_list", "/emoji", "/help", "/nc", "/whispers_list"};
+std::string command[] = { "/whisper", "/w", "/friend_add","/f","/friends_list", "/emoji", "/help", "/nc", "/whispers_list", "/off"};
 
 //이모티콘
 std::string emoji[] = { "smile", "happy", "sad", "angry" };
@@ -241,10 +241,10 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                                             //std::cout << "추가" << std::endl;
                                             break;
                                         }
-                                        else {
+                                        /*else {
                                             std::cout << "시스템 메시지 오류?" << std::endl;
                                             break;
-                                        }
+                                        }*/
                                     }
                                 }
                                 int sendSize = serverMsg_friend_add.size();
@@ -273,9 +273,10 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                                     continue;
                                 }
                             }
-                            else {
+                            /*else {
                                 std::cout << "오류?" << std::endl;
-                            }
+                                break;
+                            }*/
                         }
 
                     }
@@ -287,6 +288,9 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                             for (int k = 0; k < userInfo.size(); k++) {
                                 if (userInfo[i].friendsList[j] == userInfo[k].nickName) {
                                     onlineCheck = "온라인";
+                                    if (userInfo[k].online == 0) {
+                                        onlineCheck = "오프라인";
+                                    }
                                 }
                             }
                             serverMsg_my_friends_list += userInfo[i].friendsList[j] +" - " + onlineCheck + "\r\n";
@@ -391,6 +395,12 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                             continue;
                         }
                     }
+                    //오프라인
+                    else if (forIFCommand == command[9]) {
+
+                    userInfo[i].online = 0;
+
+                    }
                     else {
                         //잘못된 커멘드
                         std::cout << "그런 커멘드는 없습니다." << std::endl;
@@ -449,12 +459,12 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
                     break;
                 }
 
-
+                break;
             }
             else if (v[i].sin_port != clientaddr.sin_port && i == v.size() - 1) {
                 //신규 유저 첫 접속시 닉네임 등록
                 //127.0.0.1 로컬 환경에서는 닉네임 중복검사 로직 불가 
-                //원격에서는 ip가 같지 않는 환경에서는 동작할 것이라 예측
+                //원격에서는 ip가 같지 않은 환경에서는 동작할 것이라 예측
                 /*int tmpsize = userInfo.size();
                 int ifNickOverlap = 0;*/
 
@@ -482,7 +492,7 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
 
                 //닉네임 중복 검사
                 /*if (ifNickOverlap == 1) {
-                    std::string serverMsg_nick_overlap = "닉네임이 중복됩니다. 닉네임을 변경해주세요.\n";
+                    std::string serverMsg_nick_overlap = "닉네임이 중복됩니다. 닉네임을 변경해주세요.\r\n";
                     int nickerrSize = serverMsg_nick_overlap.size();
                     char* nickoverBuf = new char[nickerrSize];
                     strcpy(nickoverBuf, serverMsg_nick_overlap.c_str());
