@@ -100,7 +100,7 @@
 ★ Reference ★
 -------------
 > :: 참고 문헌과 참고 사이트 ::  
-> 김선우, 『TCP/IC 윈도우 소켓 프로그래밍』, 한빛아카데미, 2013  
+> 김선우, 『TCP/IP 윈도우 소켓 프로그래밍』, 한빛아카데미, 2013  
 > DelftStack, 『Concatenate Two Strings in C++』, DelftStack, https://www.delftstack.com/howto/cpp/how-to-concatenate-two-strings-cpp/, October-23, 2020  
 > DelftStack, 『Split String by Space in C++』, DelftStack, https://www.delftstack.com/ko/howto/cpp/cpp-split-string-by-space/, March-21, 2021  
 > DelftStack, 『Remove Spaces From String in C++』, DelftStack, https://www.delftstack.com/ko/howto/cpp/cpp-remove-spaces-from-string/, March-21, 2021  
